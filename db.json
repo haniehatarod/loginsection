@@ -1,0 +1,10 @@
+{
+  "users": [
+    { "id": 1, "username": "admin", "password": "admin123", "role": "admin" },
+    { "id": 2, "username": "user", "password": "user123", "role": "user" }
+  ],
+  "posts": [
+    { "id": 1, "title": "Post 1", "authorId": 1 },
+    { "id": 2, "title": "Post 2", "authorId": 2 }
+  ]
+}
