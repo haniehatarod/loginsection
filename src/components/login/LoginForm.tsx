@@ -3,7 +3,9 @@ import Input from "./Input";
 import Label from "./Label";
 import useLogin from "../../actionHooks/useLogin";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 export default function LoginForm() {
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { mutate, isLoading } = useLogin();
@@ -17,8 +19,9 @@ export default function LoginForm() {
         password,
       },
       {
-        onSuccess: () => {
-          navigate("/dashboard");
+        onSuccess: (resdata) => {
+          login(resdata.token);
+          navigate("/");
         },
         onError: () => {},
       }
@@ -29,7 +32,7 @@ export default function LoginForm() {
       <form onSubmit={handleSubmit}>
         <div className="bg-white/20  flex justify-center items-start rounded-xl flex-col gap-5 w-96 h-96">
           <h1 className="text-3xl font-bold flex justify-center items-center">
-            wellcome
+            خوش آمدید
           </h1>
           <div className="w-full flex flex-col gap-2 justify-center items-start">
             <Label htmlFor="username">نام کاربری</Label>
@@ -55,10 +58,10 @@ export default function LoginForm() {
           </div>
           <div className="h-10 w-[80%] flex items-center ">
             <button
-              className="w-full h-full bg-[#6C63FF] rounded-md text-gray-100 flex items-center justify-center"
+              className="w-full h-full bg-[#6C63FF] rounded-md text-gray-100 flex items-center justify-center  disabled:bg-gray-400"
               disabled={isLoading}
             >
-              ورود
+              {isLoading ? "در حال ورود" : "ورود"}
             </button>
           </div>
         </div>

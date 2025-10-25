@@ -15,11 +15,17 @@ export const LoginFn = async ({
   });
 
   const data = await res.json();
-  console.log("Response from server:", data);
+
   if (!res.ok) {
     throw new Error(data.message || "خطا در ورود");
   }
-
+  localStorage.removeItem("token");
   localStorage.setItem("token", data.token);
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
   return data;
+};
+export const Logout = () => {
+  localStorage.removeItem("token");
+  window.location.href = "/login";
 };

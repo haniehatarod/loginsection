@@ -11,14 +11,21 @@ server.use(bodyParser.json());
 const expiresIn = "5m";
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 const PORT = process.env.PORT || 3000;
+server.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    status: 500,
+  });
+  next();
+});
 
 const createJwt = (payload) => {
-  return jwt.sign(payload,SECRET_KEY, { expiresIn });
+  return jwt.sign(payload, SECRET_KEY, { expiresIn });
 };
 const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1];
   if (!token) {
-    res.json({
+    return res.json({
       status: 400,
       message: "No Token",
     });
@@ -39,13 +46,34 @@ server.post("/api/auth/login", (req, res) => {
     });
   }
 
-  const user = db.users.find(u => u.username === username && u.password === password);
+  const user = db.users.find(
+    (u) => u.username === username && u.password === password
+  );
   if (!user) {
-    return res.status(400).json({ message: "نام کاربری یا رمز عبور اشتباه است" });
+    return res
+      .status(400)
+      .json({ message: "نام کاربری یا رمز عبور اشتباه است" });
   }
 
-  const token = createJwt({ id: user.id, username: user.username, role: user.role });
+  const token = createJwt({
+    id: user.id,
+    username: user.username,
+    role: user.role,
+  });
   res.json({ token });
+});
+server.get("/api/posts", verifyToken, (req, res) => {
+  const user = req.user;
+  let posts;
+  if (user.role === "admin") {
+    posts = db.posts;
+  } else if (user.role === "owner") {
+    posts = db.posts.slice(0, 5);
+  } else {
+    return res.status(403).json({ message: "خطا" });
+  }
+
+  res.json(posts);
 });
 
 server.use(router);
